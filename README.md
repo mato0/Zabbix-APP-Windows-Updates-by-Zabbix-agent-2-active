@@ -1,4 +1,4 @@
-# APP-Windows Updates by Zabbix agent 2 acive
+# APP-Windows Updates by Zabbix agent 2 active
 
 This is a Zabbix template to monitor and (optionally) run Windows updates for active Windows agents. It has been tested on Zabbix 4.4.8 to v5.2 with Windows 8.1, 10 and server 2019. Currently needs testing with other Windows versions and other Zabbix versions.
 
