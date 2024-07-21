@@ -1,12 +1,12 @@
-﻿# Powershell script for Zabbix agents.
+# Powershell script for Zabbix agents.
 
-# Version 2.1 - for Zabbix agent 5x
+# Version 2.1 - for Zabbix agent 7x
 
 ## This script will check for pending Windows Updates, report them to Zabbix, and optionally install the updates.
 
 ### If you do not wish the script to install updates, look for the comment in the script that tells you how to disable that function.
 
-#### Check https://github.com/SpookOz/zabbix-winupdates for the latest version of this script
+#### Check https://github.com/SpookOz/zabbix-winupdates for the original version of this script
 
 # ------------------------------------------------------------------------- #
 # Variables
@@ -14,12 +14,12 @@
 
 # Change $reportpath to wherever you want your update reports to go.
 
-$reportpath = "C:\IT\WinUpdates"
+$reportpath = "C:\Program Files\Zabbix Agent 2\logs"
 
 # Change $ZabbixInstallPath to wherever your Zabbix Agent is installed
 
-$ZabbixInstallPath = "$Env:Programfiles\Zabbix Agent"
-$ZabbixConfFile = "$Env:Programdata\zabbix"
+$ZabbixInstallPath = "$Env:Programfiles\Zabbix Agent 2"
+$ZabbixConfFile = "$Env:Programfiles\Zabbix Agent 2"
 
 # Do not change the following variables unless you know what you are doing
 
@@ -37,7 +37,7 @@ $returnStateOptionalUpdates = $returnStateWarning
 $Sender = "$ZabbixInstallPath\zabbix_sender.exe"
 $Senderarg1 = '-vv'
 $Senderarg2 = '-c'
-$Senderarg3 = "$ZabbixConfFile\zabbix_agentd.conf"
+$Senderarg3 = "$ZabbixConfFile\zabbix_agent2.conf"
 $Senderarg4 = '-i'
 $SenderargUpdateReboot = '\updatereboot.txt'
 $Senderarglastupdated = '\lastupdated.txt'
@@ -68,14 +68,14 @@ Write-Output "- Winupdates.LastUpdated $($windowsUpdateObject.Results.LastInstal
 # This part get the reboot status and writes to test file
 # ------------------------------------------------------------------------- #
 
-if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"){ 
+if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"){
 	Write-Output "- Winupdates.Reboot 1" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargUpdateReboot
     Write-Host "`t There is a reboot pending" -ForeGroundColor "Red"
 }else {
 	Write-Output "- Winupdates.Reboot 0" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargUpdateReboot
     Write-Host "`t No reboot pending" -ForeGroundColor "Green"
 		}
-# ------------------------------------------------------------------------- #		
+# ------------------------------------------------------------------------- #
 # This part checks available Windows updates
 # ------------------------------------------------------------------------- #
 
@@ -98,14 +98,14 @@ if ($updates.Count -eq 0) {
 	Write-Output "- Winupdates.Optional $($countOptional)" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargcountOptional
 	Write-Output "- Winupdates.Hidden $($countHidden)" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargcountHidden
     Write-Host "`t There are no pending updates" -ForeGroundColor "Green"
-	
+
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargUpdateReboot -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderarglastupdated -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderargcountcritical -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountOptional -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountHidden -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg7 -s "$env:computername"
-	
+
 	exit $returnStateOK
 }
 
@@ -138,28 +138,28 @@ if (($countCritical + $countOptional) -gt 0) {
     Write-Host "`t There are $($countCritical) critical updates available" -ForeGroundColor "Yellow"
     Write-Host "`t There are $($countOptional) optional updates available" -ForeGroundColor "Yellow"
     Write-Host "`t There are $($countHidden) hidden updates available" -ForeGroundColor "Yellow"
-	
+
     & $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargUpdateReboot -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderarglastupdated -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderargcountcritical -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountOptional -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountHidden -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg7 -s "$env:computername"
-}   
+}
 
 # ------------------------------------------------------------------------- #
 # The following section will automatically apply any pending updates if it finds any critical updates missing or more than 3 optional updates missing. If you do not want this to run, comment out or delete everything between here and the next comment.
 
-	
+
 if ($countCritical -gt 0 -Or $countOptional -gt 2) {
-		
+
 			& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg8
 			$ErrorActionPreference = "SilentlyContinue"
-			
+
 			If ($Error) {
 				$Error.Clear()
 			}
-			
+
 			$Today = Get-Date
 			$TodayFile = get-date -f yyyy-MM-dd
 			$UpdateCollection = New-Object -ComObject Microsoft.Update.UpdateColl
@@ -175,7 +175,7 @@ if ($countCritical -gt 0 -Or $countOptional -gt 2) {
 				}
 				New-Item $ReportFile -Type File -Force -Value "Windows Update Report For Computer: $Env:ComputerName`r`n" | Out-Null
 				Add-Content $ReportFile "Report Created On: $Today`r"
-				
+
 			If ($Result.Updates.Count -EQ 0) {
 				Write-Host "`t There are no applicable updates for this computer."
 				Add-Content $ReportFile "==============================================================================`r`n"
@@ -216,7 +216,7 @@ if ($countCritical -gt 0 -Or $countOptional -gt 2) {
 						Add-Content $ReportFile "`t Download Status: FAILED With Error -- $Error()"
 						$Error.Clear()
 						Add-content $ReportFile "`r"
-					}	
+					}
 				}
 				$Counter = 0
 				$DisplayCount = 0
@@ -240,7 +240,7 @@ if ($countCritical -gt 0 -Or $countOptional -gt 2) {
 						Add-Content $ReportFile "`t Update Installation Status: FAILED With Error -- $Error()"
 						$Error.Clear()
 						Add-content $ReportFile "`r"
-					}	
+					}
 				}
 			}
 
@@ -248,7 +248,7 @@ if ($countCritical -gt 0 -Or $countOptional -gt 2) {
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg7
 
 
-    if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"){ 
+    if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"){
 	    Write-Output "- Winupdates.Reboot 1" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargUpdateReboot
         Write-Host "`t There is a reboot pending" -ForeGroundColor "Red"
     }else {
@@ -286,7 +286,7 @@ if ($countOptional -gt 0) {
 # ------------------------------------------------------------------------- #
 
 if ($countHidden -gt 0) {
-	
+
 	$countCritical | Out-File -Encoding "ASCII" -FilePath $env:temp$Countcriticalnum
 	Write-Output "- Winupdates.Critical $($countCritical)" | Out-File -Encoding "ASCII" -FilePath $env:temp$Senderargcountcritical
 	Write-Output "- Winupdates.Optional $($countOptional)" | Out-File -Encoding "ASCII" -FilePath $env:temp$SenderargcountOptional
@@ -294,14 +294,14 @@ if ($countHidden -gt 0) {
     Write-Host "`t There are $($countCritical) critical updates available" -ForeGroundColor "Yellow"
     Write-Host "`t There are $($countOptional) optional updates available" -ForeGroundColor "Yellow"
     Write-Host "`t There are $($countHidden) hidden updates available" -ForeGroundColor "Yellow"
-	
+
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargUpdateReboot -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderarglastupdated -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$Senderargcountcritical -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountOptional -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg4 $env:temp$SenderargcountHidden -s "$env:computername"
 	& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg7 -s "$env:computername"
-	
+
 	exit $returnStateOK
 }
 
