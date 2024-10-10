@@ -50,6 +50,7 @@ $Senderargupdating = 'Winupdates.Updating'
 $Senderarg6 = '-o'
 $Senderarg7 = '0'
 $Senderarg8 = '1'
+$SkipInstall = 1 # do not install updates
 
 
 If(!(test-path $reportpath))
@@ -149,9 +150,8 @@ if (($countCritical + $countOptional) -gt 0) {
 
 # ------------------------------------------------------------------------- #
 # The following section will automatically apply any pending updates if it finds any critical updates missing or more than 3 optional updates missing. If you do not want this to run, comment out or delete everything between here and the next comment.
-/*
 
-if ($countCritical -gt 0 -Or $countOptional -gt 2) {
+if (($SkipInstall -ne 1) -and ($countCritical -gt 0 -Or $countOptional -gt 2)) {
 
 			& $Sender $Senderarg1 $Senderarg2 $Senderarg3 $Senderarg5 $Senderargupdating $Senderarg6 $Senderarg8
 			$ErrorActionPreference = "SilentlyContinue"
