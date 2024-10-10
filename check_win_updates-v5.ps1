@@ -49,7 +49,7 @@ $SkipInstall = 1 # do not install updates
 Set-Location -Path "$ZabbixPath"
 
 # Check log dir
-If(!(test-path $reportpath))
+if (!(test-path $reportpath))
 {
       New-Item -ItemType Directory -Force -Path $reportpath
 }
