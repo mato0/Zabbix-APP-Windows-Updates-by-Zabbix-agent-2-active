@@ -14,7 +14,7 @@
 
 # Change $reportpath to wherever you want your update reports to go.
 
-$reportpath = "C:\Program Files\Zabbix Agent 2\logs"
+$reportpath = "$Env:Programfiles\Zabbix Agent 2\logs"
 
 # Change $ZabbixInstallPath to wherever your Zabbix Agent is installed
 
@@ -149,7 +149,7 @@ if (($countCritical + $countOptional) -gt 0) {
 
 # ------------------------------------------------------------------------- #
 # The following section will automatically apply any pending updates if it finds any critical updates missing or more than 3 optional updates missing. If you do not want this to run, comment out or delete everything between here and the next comment.
-
+/*
 
 if ($countCritical -gt 0 -Or $countOptional -gt 2) {
 
