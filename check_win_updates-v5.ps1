@@ -10,12 +10,10 @@
 # Variables
 # ------------------------------------------------------------------------- #
 
-# Change $reportpath to wherever you want your update reports to go.
-$reportpath = "$Env:Programfiles\Zabbix Agent 2\logs"
+$ZabbixPath = "$Env:Programfiles\Zabbix Agent 2"
 
-# Change $ZabbixInstallPath to wherever your Zabbix Agent is installed
-$ZabbixInstallPath = "$Env:Programfiles\Zabbix Agent 2"
-$ZabbixConfFile = "$Env:Programfiles\Zabbix Agent 2"
+# Change $reportpath to wherever you want your update reports to go.
+$reportpath = "$ZabbixPath\logs"
 
 # Do not change the following variables unless you know what you are doing
 $htReplace = New-Object hashtable
@@ -29,10 +27,10 @@ $returnStateWarning = 1
 $returnStateCritical = 2
 $returnStateUnknown = 3
 $returnStateOptionalUpdates = $returnStateWarning
-$Sender = "$ZabbixInstallPath\zabbix_sender.exe"
-$Senderarg1 = '-vv'
+$Sender = "$ZabbixPath\zabbix_sender.exe"
+$Senderarg1 = '' # '-vv'
 $Senderarg2 = '-c'
-$Senderarg3 = "$ZabbixConfFile\zabbix_agent2.conf"
+$Senderarg3 = "$ZabbixPath\zabbix_agent2.conf"
 $Senderarg4 = '-i'
 $SenderargUpdateReboot = '\updatereboot.txt'
 $Senderarglastupdated = '\lastupdated.txt'
@@ -47,7 +45,10 @@ $Senderarg7 = '0'
 $Senderarg8 = '1'
 $SkipInstall = 1 # do not install updates
 
+# Change current dir
+Set-Location -Path "$ZabbixPath"
 
+# Check log dir
 If(!(test-path $reportpath))
 {
       New-Item -ItemType Directory -Force -Path $reportpath
