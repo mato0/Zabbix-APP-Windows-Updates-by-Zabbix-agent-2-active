@@ -17,7 +17,7 @@ $reportpath = "$ZabbixPath\logs"
 
 # Do not change the following variables unless you know what you are doing
 $htReplace = New-Object hashtable
-foreach ($letter in (Write-Output � ae � oe � ue � Ae � Oe � Ue � ss)) {
+foreach ($letter in (Write-Output ä ae ö oe ü ue Ä Ae Ö Oe Ü Ue ß ss)) {
     $foreach.MoveNext() | Out-Null
     $htReplace.$letter = $foreach.Current
 }
