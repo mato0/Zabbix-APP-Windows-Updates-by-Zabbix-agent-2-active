@@ -1,5 +1,5 @@
 # Powershell script for Zabbix agents.
-# Version 2.2 - for Zabbix agent 7x
+# Version 2.3 - for Zabbix agent 7x
 
 ## This script will check for pending Windows Updates, report them to Zabbix, and optionally install the updates.
 ### If you do not wish the script to install updates, set $SkipInstall to 1.
@@ -17,7 +17,7 @@ $reportpath = "$ZabbixPath\logs"
 
 # Do not change the following variables unless you know what you are doing
 $htReplace = New-Object hashtable
-foreach ($letter in (Write-Output ä ae ö oe ü ue Ä Ae Ö Oe Ü Ue ß ss)) {
+foreach ($letter in (Write-Output � ae � oe � ue � Ae � Oe � Ue � ss)) {
     $foreach.MoveNext() | Out-Null
     $htReplace.$letter = $foreach.Current
 }
